@@ -1,22 +1,19 @@
 # College Event Zone
 
-##  Project Description
+## Project Description
 
-College Event Zone is a role-based event management system designed for managing college events efficiently.
-It provides separate features for Organizers and Students, including event creation, registration, notifications, and feedback.
+College Event Zone is a role-based event management system designed to manage college events efficiently. It provides separate features for organizers and students, including event creation, registration, notifications, and feedback.
 
----
+## Features
 
-##  Features
-
-###  Organizer
+### Organizer
 
 * Add, edit, and delete events
 * Mark events as completed
 * View student feedback
 * Automatically notify students
 
-###  Student
+### Student
 
 * Browse available events
 * Register using Google Form links
@@ -24,9 +21,7 @@ It provides separate features for Organizers and Students, including event creat
 * Submit feedback after event completion
 * View notifications and reminders
 
----
-
-##  Technologies Used
+## Technologies Used
 
 * HTML
 * CSS
@@ -35,72 +30,53 @@ It provides separate features for Organizers and Students, including event creat
 * Express.js
 * SQLite
 
----
-
-##  Quick Start
+## Quick Start
 
 1. Install Node.js (LTS version)
-
 2. Install dependencies:
    npm install
-
 3. Start development server:
    npm run dev
-
 4. Open in browser:
    http://localhost:3000
 
----
-
-##  Android Application
+## Android Application
 
 * Android wrapper is available in `android-app/`
 * Open `android-app/android-app` in Android Studio
-* It uses WebView to load the web application
+* The app uses WebView to load the web application
 
-###  Configuration
+### Configuration
 
 * Debug URL: http://10.0.2.2:3000
 * Update `WEB_APP_URL` in `app/build.gradle` for production
 
----
+## Default Users
 
-##  Default Users
+Organizer
+Username: organizer
+Password: organizer123
 
-* Organizer
-  Username: organizer
-  Password: organizer123
+Students
+Username: student1 / student2 / student3
+Password: student123
 
-* Students
-  Username: student1 / student2 / student3
-  Password: student123
-
----
-
-##  Project Data
+## Project Data
 
 * Database: `src/data/app.sqlite`
 * Sessions: `src/data/sessions.sqlite`
 
----
-
-##  Reminders
+## Reminders
 
 * Daily reminder at 9:00 AM
 * Event-day reminder at 8:00 AM
 
----
+## Notes
 
-##  Notes
-
-* `node_modules` is not included → run `npm install`
+* `node_modules` is not included; run `npm install`
 * Set `SESSION_SECRET` environment variable to override default value
 * Android build files are minimized due to size limitations
 
----
-
-##  Purpose
+## Purpose
 
 This project is developed to demonstrate full-stack web development and event management system functionality.
-
----
