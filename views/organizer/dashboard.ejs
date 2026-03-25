@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Organizer Dashboard</title>
+    <link rel="stylesheet" href="/public/styles.css" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="icon" href="/icon.svg" type="image/svg+xml" />
+    <meta name="theme-color" content="#ec4899" />
+  </head>
+  <body>
+    <div class="container">
+      <header class="topbar">
+        <h1>Organizer Dashboard</h1>
+        <form method="post" action="/logout">
+          <button type="submit" class="secondary">Logout</button>
+        </form>
+      </header>
+      <div class="stack-sm" style="margin-bottom:18px;">
+        <a class="button" href="/organizer/events/new">+ Add Event</a>
+        <a class="button secondary" href="/organizer/posters/new">✨ Auto Poster</a>
+        <a class="button secondary" href="/organizer/students">👥 Manage Students</a>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Title</th>
+            <th>Date</th>
+            <th>Flier</th>
+            <th>Tags</th>
+            <th>Audience</th>
+            <th>Status</th>
+            <th>Registrations</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% if (events.length === 0) { %>
+            <tr><td colspan="8">No events yet.</td></tr>
+          <% } %>
+          <% events.forEach(e => { %>
+            <tr>
+              <td><%= e.title %></td>
+              <td><%= e.event_date %></td>
+              <td>
+                <% if (e.flier_path) { %>
+                  <img src="<%= e.flier_path %>" alt="Flier for <%= e.title %>" style="max-width:120px; max-height:120px; border-radius:8px;" />
+                <% } else { %>
+                  <span class="muted">None</span>
+                <% } %>
+              </td>
+              <td>
+                <%
+                  const tagList = (e.tags || '').split(',').map(t => t.trim()).filter(Boolean);
+                %>
+                <% if (tagList.length) { %>
+                  <div class="stack-sm">
+                    <% tagList.forEach(tag => { %>
+                      <span class="badge"><span class="dot"></span><%= (tagLabels && tagLabels[tag]) || tag %></span>
+                    <% }) %>
+                  </div>
+                <% } else { %>
+                  <span class="muted">--</span>
+                <% } %>
+              </td>
+              <td>
+                <%
+                  const audience = (e.audience_branches || '').split(',').map(t => t.trim()).filter(Boolean);
+                %>
+                <% if (audience.length) { %>
+                  <div class="stack-sm">
+                    <% audience.forEach(branch => { %>
+                      <span class="badge"><span class="dot"></span><%= (branchLabels && branchLabels[branch]) || branch %></span>
+                    <% }) %>
+                  </div>
+                <% } else { %>
+                  <span class="muted">All</span>
+                <% } %>
+              </td>
+              <td><%= e.status %></td>
+              <td><%= e.num_registrations %></td>
+              <td>
+                <a href="/organizer/events/<%= e.id %>/edit">Edit</a>
+                <form method="post" action="/organizer/events/<%= e.id %>?_method=DELETE" style="display:inline">
+                  <button type="submit" class="danger">Delete</button>
+                </form>
+                <form method="post" action="/organizer/events/<%= e.id %>/complete" style="display:inline">
+                  <button type="submit" class="secondary" <%= e.status==='completed'?'disabled':'' %>>Mark Completed</button>
+                </form>
+                <a href="/organizer/events/<%= e.id %>/feedback">View Feedback</a>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+    <script src="/public/pwa.js"></script>
+  </body>
+</html>
+
+

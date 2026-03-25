@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Student Dashboard</title>
+    <link rel="stylesheet" href="/public/styles.css" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="icon" href="/icon.svg" type="image/svg+xml" />
+    <meta name="theme-color" content="#ec4899" />
+  </head>
+  <body>
+    <div class="container">
+      <header class="topbar">
+        <h1>Student Dashboard</h1>
+        <form method="post" action="/logout">
+          <button type="submit" class="secondary">Logout</button>
+        </form>
+      </header>
+      <% if (alert) { %>
+        <div class="alert"><%= alert %></div>
+      <% } %>
+
+      <div class="card" style="margin-bottom:16px; display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;">
+        <div class="muted">Discover and register for upcoming events.</div>
+        <a class="button" href="/student/events"><span class="icon">🔎</span> Browse Events</a>
+      </div>
+
+      <section class="grid" style="margin-bottom:16px;">
+        <div>
+          <div class="card recommendation-card">
+            <div class="card-header">
+              <h2>Recommended for You ⭐</h2>
+              <span class="badge"><span class="dot"></span>Smart picks</span>
+            </div>
+            <% if (recommendations && recommendations.length) { %>
+              <div class="recommendation-grid">
+                <% recommendations.forEach(item => { 
+                    const tagList = (item.event.tags || '').split(',').map(t => t.trim()).filter(Boolean);
+                %>
+                  <div class="recommendation-tile">
+                    <div class="recommendation-top">
+                      <span class="score-pill">Score <%= Math.round(item.score) %></span>
+                      <span class="muted"><%= item.event.event_date %></span>
+                    </div>
+                    <h3><%= item.event.title %></h3>
+                    <% if (tagList.length) { %>
+                      <div class="tag-row">
+                        <% tagList.forEach(tag => { %>
+                          <span class="badge"><span class="dot"></span><%= (tagLabelMap && tagLabelMap[tag]) || tag %></span>
+                        <% }) %>
+                      </div>
+                    <% } %>
+                    <div class="reason-row">
+                      <% item.reasons.forEach(reason => { %>
+                        <span class="reason-chip"><%= reason %></span>
+                      <% }) %>
+                    </div>
+                    <a class="secondary nowrap" href="/student/events"><span class="icon">➡️</span>View in Events</a>
+                  </div>
+                <% }) %>
+              </div>
+            <% } else { %>
+              <p class="muted">Ask your organizer to assign your branch to unlock smarter suggestions.</p>
+            <% } %>
+          </div>
+        </div>
+        <aside>
+          <div class="card">
+            <h2>Your Branch</h2>
+            <p style="margin-bottom:4px;">
+              <strong><%= activeBranchLabel || 'Not assigned yet' %></strong>
+            </p>
+            <% if (!activeBranchLabel) { %>
+              <p class="muted">Contact the organizer to get your branch assigned for exclusive invites.</p>
+            <% } else { %>
+              <p class="muted">Need changes? Reach out to the organizer.</p>
+            <% } %>
+          </div>
+        </aside>
+      </section>
+
+      <section class="grid">
+        <div>
+          <h2>Events</h2>
+          <p class="muted" style="margin-top:-6px;">
+            Showing invites for 
+            <strong><%= activeBranchLabel || 'all branches' %></strong>
+            <% if (!activeBranchLabel) { %>
+              (ask the organizer to assign your branch for exclusive events)
+            <% } %>
+          </p>
+          <table>
+            <thead>
+              <tr>
+                <th>Title</th>
+                <th>Date</th>
+                <th>Flier</th>
+                <th>Tags</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% if (events.length === 0) { %>
+                <tr><td colspan="6">No events available.</td></tr>
+              <% } %>
+              <% events.forEach(e => { %>
+                <tr>
+                  <td><%= e.title %></td>
+                  <td><%= e.event_date %></td>
+                  <td>
+                    <% if (e.flier_path) { %>
+                      <a href="<%= e.flier_path %>" target="_blank" rel="noopener">
+                        <img src="<%= e.flier_path %>" alt="Flier for <%= e.title %>" style="max-width:120px; max-height:120px; border-radius:8px;" />
+                      </a>
+                    <% } else { %>
+                      <span class="muted">None</span>
+                    <% } %>
+                  </td>
+                  <td>
+                    <%
+                      const tagList = (e.tags || '').split(',').map(t => t.trim()).filter(Boolean);
+                    %>
+                    <% if (tagList.length) { %>
+                      <div class="tag-row">
+                        <% tagList.forEach(tag => { %>
+                          <span class="badge"><span class="dot"></span><%= (tagLabelMap && tagLabelMap[tag]) || tag %></span>
+                        <% }) %>
+                      </div>
+                    <% } else { %>
+                      <span class="muted">--</span>
+                    <% } %>
+                  </td>
+                  <td><%= e.status %></td>
+                  <td>
+                    <% if (e.google_form_url) { %>
+                      <a class="button" href="/student/events/<%= e.id %>/form" target="_blank">Open Google Form</a>
+                      <form method="post" action="/student/events/<%= e.id %>/form-submitted" style="display:inline">
+                        <button type="submit" class="secondary">I submitted the form</button>
+                      </form>
+                    <% } %>
+                    <form method="post" action="/student/events/<%= e.id %>/register" style="display:inline">
+                      <button type="submit" <%= e.is_registered? 'disabled' : (e.google_form_url && !formSubmitted[e.id] ? 'disabled' : '') %>><%= e.is_registered? 'Registered' : 'Mark Registered' %></button>
+                    </form>
+                    <% if (e.status === 'completed') { %>
+                      <a class="secondary nowrap" href="/student/events/<%= e.id %>/feedback"><span class="icon">⭐</span> Give Feedback</a>
+                    <% } %>
+                  </td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+        <aside>
+          <h2>Notifications</h2>
+          <ul class="list">
+            <% if (notifications.length === 0) { %>
+              <li>No notifications yet.</li>
+            <% } %>
+            <% notifications.forEach(n => { %>
+              <li><%= n.created_at %>: <%= n.message %></li>
+            <% }) %>
+          </ul>
+        </aside>
+      </section>
+    </div>
+    <script src="/public/pwa.js"></script>
+    <script src="/public/student-notifications.js" defer></script>
+  </body>
+</html>
+
+

@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Feedback - <%= event.title %></title>
+    <link rel="stylesheet" href="/public/styles.css" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="icon" href="/icon.svg" type="image/svg+xml" />
+    <meta name="theme-color" content="#ec4899" />
+  </head>
+  <body>
+    <div class="container">
+      <a href="/student">← Back</a>
+      <div class="card">
+        <h2>Give Feedback for <%= event.title %></h2>
+        <% if (error) { %><div class="alert"><%= error %></div><% } %>
+        <form method="post" action="/student/events/<%= event.id %>/feedback">
+          <div class="grid" style="grid-template-columns: 1fr 1fr; gap: 16px;">
+            <div>
+              <label>Full Name</label>
+              <input name="student_name" placeholder="Your name" value="<%= (existing && existing.student_name) || '' %>" />
+            </div>
+            <div>
+              <label>Branch</label>
+              <input name="branch" placeholder="e.g., CSE, ECE" value="<%= (existing && existing.branch) || '' %>" />
+            </div>
+            <div>
+              <label>Section</label>
+              <input name="section" placeholder="e.g., A, B" value="<%= (existing && existing.section) || '' %>" />
+            </div>
+          </div>
+
+          <label>Overall Rating</label>
+          <div id="stars" class="stack-sm" style="margin-top:8px;">
+            <input type="hidden" name="rating" id="rating" value="<%= (existing && existing.rating) || '' %>" required />
+            <div class="star-row">
+              <button type="button" class="icon-btn" data-value="1" aria-label="1 star">★</button>
+              <button type="button" class="icon-btn" data-value="2" aria-label="2 stars">★</button>
+              <button type="button" class="icon-btn" data-value="3" aria-label="3 stars">★</button>
+              <button type="button" class="icon-btn" data-value="4" aria-label="4 stars">★</button>
+              <button type="button" class="icon-btn" data-value="5" aria-label="5 stars">★</button>
+            </div>
+            <div class="muted">Click to set rating</div>
+          </div>
+
+          <div class="grid" style="grid-template-columns: 1fr; gap: 16px; margin-top: 10px;">
+            <div>
+              <label>Event Organization (type your answer)</label>
+              <textarea name="q_organization_text" placeholder="Your thoughts on organization..."><%= (existing && existing.q_organization_text) || '' %></textarea>
+            </div>
+            <div>
+              <label>Content Quality (type your answer)</label>
+              <textarea name="q_content_text" placeholder="Was the content valuable? ..."><%= (existing && existing.q_content_text) || '' %></textarea>
+            </div>
+            <div>
+              <label>Venue & Arrangements (type your answer)</label>
+              <textarea name="q_venue_text" placeholder="Venue, seating, audio, etc."><%= (existing && existing.q_venue_text) || '' %></textarea>
+            </div>
+            <div>
+              <label>Engagement & Interaction (type your answer)</label>
+              <textarea name="q_engagement_text" placeholder="Interaction level, Q&A, activities..."><%= (existing && existing.q_engagement_text) || '' %></textarea>
+            </div>
+          </div>
+
+          <label style="margin-top:14px;">Suggestions to improve</label>
+          <textarea name="suggestions" placeholder="How can we improve?"><%= (existing && existing.suggestions) || '' %></textarea>
+
+          <label>Additional Comments</label>
+          <textarea name="comments"><%= (existing && existing.comments) || '' %></textarea>
+
+          <div style="margin-top:14px;">
+            <button type="submit">Submit Feedback</button>
+            <a class="secondary" href="/student">Cancel</a>
+          </div>
+        </form>
+      </div>
+    </div>
+    <script>
+      (function(){
+        const current = Number(document.getElementById('rating').value || 0);
+        const buttons = Array.from(document.querySelectorAll('#stars .icon-btn'));
+        function paint(n){
+          buttons.forEach((b,i)=>{
+            if(i < n){ b.style.background = 'linear-gradient(180deg, #ffffff, #fafafa)'; b.style.color = '#ec4899'; }
+            else { b.style.background = 'linear-gradient(180deg, rgba(255,255,255,.95), rgba(255,255,255,.9))'; b.style.color = ''; }
+          });
+        }
+        paint(current);
+        buttons.forEach(btn=>{
+          btn.addEventListener('click', ()=>{
+            const v = Number(btn.getAttribute('data-value'));
+            document.getElementById('rating').value = v;
+            paint(v);
+          });
+        });
+      })();
+    </script>
+    <script src="/public/pwa.js"></script>
+    <script src="/public/student-notifications.js" defer></script>
+  </body>
+</html>
+
+

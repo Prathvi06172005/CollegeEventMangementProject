@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>College Event Zone</title>
+    <link rel="stylesheet" href="/public/styles.css" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <meta name="theme-color" content="#ec4899" />
+    <link rel="icon" href="/icon.svg" type="image/svg+xml" />
+  </head>
+  <body>
+    <div class="container" style="display:flex; align-items:center; justify-content:center; min-height: 80vh;">
+      <div class="card" style="max-width:720px; text-align:center; padding: 32px;">
+        <h1>College Event Zone</h1>
+        <p class="muted" style="margin-top:8px;">“Discover. Participate. Share your voice.”</p>
+        <div style="margin-top:16px;">
+          <% if (!currentUser) { %>
+            <a class="button" href="/login">Get Started</a>
+          <% } else if (currentUser.role === 'organizer') { %>
+            <a class="button" href="/organizer">Get Started</a>
+          <% } else { %>
+            <a class="button" href="/student">Get Started</a>
+          <% } %>
+        </div>
+      </div>
+    </div>
+    <script src="/public/pwa.js"></script>
+  </body>
+  </html>
+
+

@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title><%= event ? 'Edit' : 'Create' %> Event</title>
+    <link rel="stylesheet" href="/public/styles.css" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="icon" href="/icon.svg" type="image/svg+xml" />
+    <meta name="theme-color" content="#ec4899" />
+  </head>
+  <body>
+    <div class="container">
+      <a href="/organizer">← Back</a>
+      <div class="card">
+        <h2><%= event ? 'Edit' : 'Create' %> Event</h2>
+        <% if (error) { %><div class="alert"><%= error %></div><% } %>
+        <form method="post" enctype="multipart/form-data" action="<%= event ? '/organizer/events/' + event.id + '?_method=PUT' : '/organizer/events' %>">
+          <%
+            const selectedTags = (event && typeof event.tags === 'string'
+              ? event.tags.split(',').map(t => t.trim()).filter(Boolean)
+              : []);
+            const selectedAudience = (event && typeof event.audience_branches === 'string'
+              ? event.audience_branches.split(',').map(t => t.trim()).filter(Boolean)
+              : []);
+          %>
+          <label>Event Type</label>
+          <div class="segmented">
+            <label>
+              <input type="radio" name="event_type" value="written" <%= !event || event.event_type === 'written' ? 'checked' : '' %>>
+              <span>Written</span>
+            </label>
+            <label>
+              <input type="radio" name="event_type" value="flier" <%= event && event.event_type === 'flier' ? 'checked' : '' %>>
+              <span>Flier</span>
+            </label>
+          </div>
+          <label>Title</label>
+          <input name="title" value="<%= event?event.title:'' %>" required />
+          <div id="writtenFields">
+            <label>Description</label>
+            <textarea name="description"><%= event?event.description:'' %></textarea>
+          </div>
+          <label>Event Tags</label>
+          <div class="chip-grid">
+            <% (tagOptions || []).forEach(tag => { 
+                const isChecked = selectedTags.includes(tag.value);
+            %>
+              <label class="chip">
+                <input type="checkbox" name="tags" value="<%= tag.value %>" <%= isChecked ? 'checked' : '' %> />
+                <span><%= tag.label %></span>
+              </label>
+            <% }) %>
+          </div>
+          <label>Target Branches</label>
+          <p class="muted" style="margin-top:4px;">Leave empty to reach everyone.</p>
+          <div class="chip-grid">
+            <% (branchOptions || []).forEach(branch => {
+                const isChecked = selectedAudience.includes(branch.value) || (!selectedAudience.length && branch.value === 'all');
+            %>
+              <label class="chip">
+                <input type="checkbox" name="audience_branches" value="<%= branch.value %>" <%= isChecked ? 'checked' : '' %> />
+                <span><%= branch.label %></span>
+              </label>
+            <% }) %>
+          </div>
+          <div id="flierFields" style="display:none;">
+            <label>Upload Flier Image</label>
+            <input type="file" name="flier" accept="image/*" />
+            <% if (event && event.event_type === 'flier' && event.flier_path) { %>
+              <div class="muted" style="margin-top:8px;">Existing flier:</div>
+              <img src="<%= event.flier_path %>" alt="Flier" style="max-width:100%;height:auto;border:1px solid #eee;border-radius:6px;" />
+              <label style="display:block;margin-top:8px;"><input type="checkbox" name="keep_existing_flier" value="1" checked> Keep existing flier if no new file</label>
+            <% } %>
+          </div>
+          <label>Event Date</label>
+          <input type="date" name="event_date" min="<%= new Date().toISOString().slice(0,10) %>" value="<%= event?event.event_date.substring(0,10):'' %>" required />
+          <label>Google Form URL (for student registration)</label>
+          <input type="url" name="google_form_url" value="<%= event?event.google_form_url:'' %>" placeholder="https://forms.google.com/..." />
+          <button type="submit"><%= event ? 'Update' : 'Create' %></button>
+        </form>
+      </div>
+    </div>
+    <script src="/public/pwa.js"></script>
+    <script>
+      (function(){
+        function toggle(){
+          var type = document.querySelector('input[name="event_type"]:checked').value;
+          var wf = document.getElementById('writtenFields');
+          var ff = document.getElementById('flierFields');
+          if(type === 'flier') { wf.style.display = 'none'; ff.style.display = 'block'; }
+          else { wf.style.display = 'block'; ff.style.display = 'none'; }
+        }
+        Array.prototype.forEach.call(document.querySelectorAll('input[name="event_type"]'), function(r){ r.addEventListener('change', toggle); });
+        toggle();
+      })();
+    </script>
+  </body>
+</html>
+
+

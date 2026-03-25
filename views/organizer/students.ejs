@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Manage Students</title>
+    <link rel="stylesheet" href="/public/styles.css" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="icon" href="/icon.svg" type="image/svg+xml" />
+    <meta name="theme-color" content="#ec4899" />
+  </head>
+  <body>
+    <div class="container">
+      <header class="topbar">
+        <div>
+          <a href="/organizer" class="back-link">← Back</a>
+          <h1>Manage Students</h1>
+        </div>
+        <form method="post" action="/logout">
+          <button type="submit" class="secondary">Logout</button>
+        </form>
+      </header>
+
+      <% if (alert) { %>
+        <div class="alert success"><%= alert %></div>
+      <% } %>
+
+      <p class="muted">Assign each student to the correct branch to target communications accurately.</p>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Branch</th>
+            <th>Update</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% if (students.length === 0) { %>
+            <tr>
+              <td colspan="4">No students found.</td>
+            </tr>
+          <% } %>
+          <% students.forEach((student) => { %>
+            <tr>
+              <td><%= student.username %></td>
+              <td><%= student.email %></td>
+              <td>
+                <form class="stack-sm" method="post" action="/organizer/students/<%= student.id %>/branch">
+                  <select name="branch" required>
+                    <option value="" <%= !student.branch ? 'selected' : '' %>>Unassigned</option>
+                    <% branchOptions.forEach((branch) => { %>
+                      <option value="<%= branch.value %>" <%= student.branch === branch.value ? 'selected' : '' %>>
+                        <%= branch.label %>
+                      </option>
+                    <% }) %>
+                  </select>
+                  <button type="submit" class="secondary">Save</button>
+                </form>
+              </td>
+              <td>
+                <% if (student.branch) { %>
+                  <span class="badge"><span class="dot"></span><%= student.branch.toUpperCase() %></span>
+                <% } else { %>
+                  <span class="muted">Unset</span>
+                <% } %>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+    <script src="/public/pwa.js"></script>
+  </body>
+</html>
+

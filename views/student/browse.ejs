@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Browse Events</title>
+    <link rel="stylesheet" href="/public/styles.css" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="icon" href="/icon.svg" type="image/svg+xml" />
+    <meta name="theme-color" content="#ec4899" />
+  </head>
+  <body>
+    <div class="container">
+      <header class="topbar">
+        <div class="brand"><span class="icon">📅</span> <span>Browse Events</span></div>
+        <nav>
+          <a class="secondary" href="/student">Back to Dashboard</a>
+        </nav>
+      </header>
+
+      <form method="get" class="card" style="margin-bottom:16px;">
+        <label for="q">Search events</label>
+        <input id="q" name="q" placeholder="Search by title or description" value="<%= q || '' %>" />
+        <div style="margin-top:10px;"><button type="submit">Search</button></div>
+      </form>
+
+      <div class="card" style="margin-bottom:16px;">
+        <p class="muted">
+          Viewing events for
+          <strong><%= activeBranchLabel || 'all branches' %></strong>.
+          <% if (!activeBranchLabel) { %>
+            Ask the organizer to assign your branch to unlock branch-only announcements.
+          <% } %>
+        </p>
+      </div>
+
+      <div class="grid" style="grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 18px;">
+        <% if (events.length === 0) { %>
+          <div class="muted">No events found.</div>
+        <% } %>
+        <% events.forEach(e => { %>
+          <div class="card">
+            <h3><%= e.title %></h3>
+            <div class="muted">Date: <%= e.event_date %> • Status: <%= e.status %></div>
+            <% if (e.flier_path) { %>
+              <img src="<%= e.flier_path %>" alt="Event Flier" style="margin-top:8px; max-width:100%; height:auto; border:1px solid #eee; border-radius:6px;" />
+            <% } else if (e.description) { %>
+              <p style="margin-top:8px;"><%= e.description %></p>
+            <% } %>
+            <div class="stack-sm" style="margin-top:10px;">
+              <% if (e.google_form_url) { %>
+                <a class="button" href="/student/events/<%= e.id %>/form" target="_blank"><span class="icon">📝</span> Google Form</a>
+                <form method="post" action="/student/events/<%= e.id %>/form-submitted">
+                  <button type="submit" class="secondary">I submitted the form</button>
+                </form>
+              <% } %>
+              <form method="post" action="/student/events/<%= e.id %>/register">
+                <button type="submit" <%= e.is_registered? 'disabled' : (e.google_form_url && !(formSubmitted && formSubmitted[e.id]) ? 'disabled' : '') %>><%= e.is_registered? 'Registered' : 'Register' %></button>
+              </form>
+              <% if (e.status === 'completed') { %>
+                <a class="secondary" href="/student/events/<%= e.id %>/feedback"><span class="icon">⭐</span> Give Feedback</a>
+              <% } %>
+            </div>
+          </div>
+        <% }) %>
+      </div>
+    </div>
+    <script src="/public/pwa.js"></script>
+  </body>
+  </html>
+
+

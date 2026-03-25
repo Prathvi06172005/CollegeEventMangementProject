@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Auto Poster Builder</title>
+    <link rel="stylesheet" href="/public/styles.css" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="icon" href="/icon.svg" type="image/svg+xml" />
+    <meta name="theme-color" content="#ec4899" />
+  </head>
+  <body>
+    <div class="container">
+      <a href="/organizer">← Back to dashboard</a>
+      <div class="grid" style="margin-top:18px;">
+        <div class="card">
+          <h2>Create Poster</h2>
+          <p class="muted">Fill in the basics, pick a style, and let our generator build a Canva-style flier instantly.</p>
+          <% if (error) { %>
+            <div class="alert"><%= error %></div>
+          <% } %>
+          <form method="post" action="/organizer/posters">
+            <label>Event Title</label>
+            <input name="event_title" value="<%= form.event_title %>" placeholder="Example: Freshers Orientation 2025" required />
+
+            <label>Date & Time</label>
+            <input type="datetime-local" name="event_datetime" value="<%= form.event_datetime %>" required />
+
+            <label>Venue</label>
+            <input name="event_venue" value="<%= form.event_venue %>" placeholder="Auditorium, Block A" required />
+
+            <label>Description / Highlights</label>
+            <textarea name="description" rows="4" placeholder="Add 1-2 punchy lines about the experience"><%= form.description %></textarea>
+
+            <label>Theme</label>
+            <select name="theme">
+              <% Object.entries(posterThemes || {}).forEach(([key, value]) => { %>
+                <option value="<%= key %>" <%= form.theme === key ? 'selected' : '' %>><%= value.name %></option>
+              <% }) %>
+            </select>
+
+            <label>Background Style</label>
+            <div class="segmented">
+              <label>
+                <input type="radio" name="mode" value="template" <%= form.mode !== 'ai' ? 'checked' : '' %> />
+                <span>Curated Template</span>
+              </label>
+              <label>
+                <input type="radio" name="mode" value="ai" <%= form.mode === 'ai' ? 'checked' : '' %> />
+                <span>AI Background</span>
+              </label>
+            </div>
+
+            <div id="aiPromptField" style="margin-top:12px; display:none;">
+              <label>AI Prompt</label>
+              <input name="ai_prompt" value="<%= form.ai_prompt %>" placeholder="Neon cyberpunk campus fest, fireworks, vibrant colors" />
+              <p class="muted" style="margin-top:6px;">We use a free Pollinations API to grab a unique hero image and blend it with your text.</p>
+            </div>
+
+            <button type="submit" style="margin-top:18px;">Generate Poster</button>
+          </form>
+        </div>
+
+        <div class="card">
+          <h2>Preview & Export</h2>
+          <% if (posterResult) { %>
+            <img src="<%= posterResult.publicPath %>" alt="Generated poster" style="width:100%; border-radius:12px; border:1px solid rgba(236,72,153,.35);" />
+            <div class="stack-sm" style="margin-top:16px;">
+              <a class="button" href="<%= posterResult.publicPath %>" download>Download PNG</a>
+              <p class="muted">Use this file when creating an event with the “Flier” option or share directly on WhatsApp & Instagram.</p>
+            </div>
+          <% } else { %>
+            <p class="muted">Poster preview will appear here once generated.</p>
+          <% } %>
+          <div style="margin-top:18px;">
+            <h3>Tips</h3>
+            <ul class="list" style="margin-top:12px;">
+              <li>Keep the title short & punchy for best readability.</li>
+              <li>AI backgrounds take 1-2 seconds and work best with descriptive prompts.</li>
+              <li>Need to edit? Just tweak the form and hit generate again.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script>
+      (function(){
+        var aiPromptField = document.getElementById('aiPromptField');
+        var modeInputs = document.querySelectorAll('input[name="mode"]');
+        function togglePrompt(){
+          var mode = document.querySelector('input[name="mode"]:checked').value;
+          aiPromptField.style.display = mode === 'ai' ? 'block' : 'none';
+        }
+        Array.prototype.forEach.call(modeInputs, function(input){
+          input.addEventListener('change', togglePrompt);
+        });
+        togglePrompt();
+      })();
+    </script>
+  </body>
+</html>
+
+

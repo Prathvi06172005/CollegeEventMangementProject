@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Feedback - <%= event.title %></title>
+    <link rel="stylesheet" href="/public/styles.css" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="icon" href="/icon.svg" type="image/svg+xml" />
+    <meta name="theme-color" content="#ec4899" />
+  </head>
+  <body>
+    <div class="container">
+      <a href="/organizer">← Back</a>
+      <h2>Feedback for <%= event.title %></h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Student</th>
+            <th>Details</th>
+            <th>Answers</th>
+            <th>Suggestions / Comments</th>
+            <th>Time</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% if (feedback.length === 0) { %>
+            <tr><td colspan="5">No feedback yet.</td></tr>
+          <% } %>
+          <% feedback.forEach(f => { %>
+            <tr>
+              <td>
+                <div><strong><%= f.student_name || f.username %></strong></div>
+                <div class="muted"><%= f.branch || '-' %> • <%= f.section || '-' %></div>
+              </td>
+              <td>
+                Overall: <strong><%= f.rating %>/5</strong>
+                <div class="muted" style="margin-top:6px;">
+                  <div><strong>Organization:</strong> <%= f.q_organization_text || '-' %></div>
+                  <div><strong>Content:</strong> <%= f.q_content_text || '-' %></div>
+                  <div><strong>Venue:</strong> <%= f.q_venue_text || '-' %></div>
+                  <div><strong>Engagement:</strong> <%= f.q_engagement_text || '-' %></div>
+                </div>
+              </td>
+              <td>
+                <% if (f.suggestions) { %>
+                  <div><strong>Suggestions:</strong> <%= f.suggestions %></div>
+                <% } %>
+                <div><%= f.comments || '' %></div>
+              </td>
+              <td><%= f.created_at %></td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+    <script src="/public/pwa.js"></script>
+  </body>
+</html>
+
+
