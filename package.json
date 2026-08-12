@@ -6,6 +6,9 @@
     "dev": "nodemon src/server.js",
     "start": "node src/server.js"
   },
+  "engines": {
+  "node": "22.x"
+},
   "keywords": [],
   "author": "",
   "license": "ISC",
